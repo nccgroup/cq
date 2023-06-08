@@ -22,6 +22,7 @@ SKIP_DIRS = [
     regex.compile(r'/\.svn/'),
     regex.compile(r'/\.git/'),
     regex.compile('example'),
+    regex.compile(f'/{fn.outdir}/'), # Exclude outdir from scanned directories
 ]
 
 SKIP_EXTS = [
