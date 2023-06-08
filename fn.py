@@ -335,7 +335,7 @@ def is_binary(line):
 
 
 def do_checks(re_checks_todo):
-    if outdir == '':
+    if outdir == '' or scandir == '':
         return
     if a:
         mode = 'rb'
@@ -346,7 +346,7 @@ def do_checks(re_checks_todo):
     for check in global_checks:
         do_global_check(check)
 
-    for root, subdirs, files in os.walk(os.path.abspath(".")):
+    for root, subdirs, files in os.walk(os.path.abspath(scandir)):
         for fn in files:
             fname = str(root) + "/" + str(fn)
             # exclude some files/paths based on verbosity options
@@ -391,6 +391,7 @@ def syntax():
         cq.py [options] <output directory>
         -a   : check all files, including binaries (i.e. files containing invalid utf-8 chars)
         -c <checks regex> : only run checks matching the regex, e.g. 'php'
+        -d <directory to scan>: specify the directory you want to scan
         -p   : print progress
         -v   : quite verbose
         -vv  : annoyingly verbose
@@ -411,10 +412,11 @@ sc = False
 print_progress = False
 re_checks = '.*'
 outdir = '/tmp/'  # Note - this is always set to something else, but - just in case it isn't, put output in /tmp.
+scandir = './'    # If no directory is provided we assume that the current directory is the target. 
 
 
 def do_main():
-    global a, v, vv, vvv, ns, sa, sc, outdir, print_progress, re_checks
+    global a, v, vv, vvv, ns, sa, sc, outdir, scandir, print_progress, re_checks
     argc = len(sys.argv)
     argv = sys.argv
 
@@ -452,6 +454,9 @@ def do_main():
             print_progress = True
         if i == argc - 1:
             outdir = argv[i]
+        if argv[i] == '-d':
+            scandir = argv[i + 1]
+            i += 1
         if argv[i] == '-c':
             re_checks = argv[i + 1]
             i += 1
@@ -460,6 +465,10 @@ def do_main():
         os.makedirs(outdir)
     except:  # noqa
         print("Outdir exists")
+
+    if not os.path.exists(scandir):
+        print(f"{scandir}: directory not found")
+        sys.exit(1)
 
     print("Starting")
 
